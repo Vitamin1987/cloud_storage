@@ -4,6 +4,8 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
+
+from apps.location.views import update_user_location
 from apps.users.serializers import UserSerializer, LoginSerializer, UserProfileSerializer
 
 
@@ -56,6 +58,7 @@ class ProfileView(APIView):
 
         def get(self, request) -> Response:
             """Возвращает данные профиля."""
+            update_user_location(request)  # Обновляем местоположение
             profile = request.user.profile  # Получаем профиль текущего пользователя
             serializer = UserProfileSerializer(profile)
             return Response(serializer.data, status=status.HTTP_200_OK)

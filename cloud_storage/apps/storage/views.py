@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
+
+from apps.location.views import update_user_location
 from apps.storage.models import Folder, File
 from apps.storage.serializers import FolderSerializer, FileSerializer
 
@@ -12,6 +14,7 @@ class FolderListCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request) -> Response:
+        update_user_location(request)  # Обновляем местоположение
         """Возвращает список папок пользователя с поиском и сортировкой."""
         folders = Folder.objects.filter(owner=request.user)
 

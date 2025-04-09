@@ -7,4 +7,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('apps.users.urls')),  # Подключаем маршруты users
     path('api/storage/', include('apps.storage.urls')),  # Новые маршруты
+    path('api/location/', include('apps.location.urls')),  # Новый маршрут
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

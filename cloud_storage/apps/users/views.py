@@ -2,9 +2,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny  # Добавляем это
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
-from apps.users.serializers import UserSerializer, LoginSerializer
+from apps.users.serializers import UserSerializer, LoginSerializer, UserProfileSerializer
 
 
 class RegisterView(APIView):
@@ -49,3 +49,28 @@ class LoginView(APIView):
                 return Response({'token': token.key}, status=status.HTTP_200_OK)
             return Response({'error': 'Неверные данные'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ProfileView(APIView):
+        """APIView для работы с личным кабинетом."""
+        permission_classes = [IsAuthenticated]  # Только авторизованные пользователи
+
+        def get(self, request) -> Response:
+            """Возвращает данные профиля."""
+            profile = request.user.profile  # Получаем профиль текущего пользователя
+            serializer = UserProfileSerializer(profile)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        def put(self, request) -> Response:
+            """Обновляет данные профиля."""
+            profile = request.user.profile
+            serializer = UserProfileSerializer(profile, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        def delete(self, request) -> Response:
+            """Удаляет профиль и пользователя."""
+            user = request.user
+            user.delete()  # Удаляет и профиль, и пользователя из-за CASCADE
+            return Response(status=status.HTTP_204_NO_CONTENT)

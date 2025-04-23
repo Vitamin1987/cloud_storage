@@ -4,7 +4,7 @@ from apps.users.models import UserProfile
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели User."""
+    """Сериалайзер для модели User."""
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'password']
@@ -27,7 +27,7 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели UserProfile."""
+    """Сериалайзер для модели UserProfile."""
     username = serializers.CharField(source='user.username', read_only=True)
     email = serializers.EmailField(source='user.email')
 

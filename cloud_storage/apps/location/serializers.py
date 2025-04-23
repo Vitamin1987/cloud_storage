@@ -3,7 +3,7 @@ from apps.location.models import Location
 
 
 class LocationSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Location."""
+    """Сериалйзер для модели Location."""
     class Meta:
         model = Location
         fields = ['id', 'ip_address', 'city', 'country', 'last_updated']

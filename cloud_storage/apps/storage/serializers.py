@@ -3,7 +3,7 @@ from apps.storage.models import Folder, File
 
 
 class FolderSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Folder."""
+    """Сериалайзер для модели Folder."""
     class Meta:
         model = Folder
         fields = ['id', 'name', 'owner', 'parent', 'created_at']
@@ -17,7 +17,7 @@ class FolderSerializer(serializers.ModelSerializer):
 
 
 class FileSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели File."""
+    """Сериалайзер для модели File."""
     class Meta:
         model = File
         fields = ['id', 'name', 'owner', 'folder', 'file', 'size', 'uploaded_at']

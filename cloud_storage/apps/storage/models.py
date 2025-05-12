@@ -2,11 +2,28 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class Storage(models.Model):
+    """Модель хранилища пользователя."""
+    name = models.CharField(max_length=255)  # Название хранилища
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='storages')
+    # Связь с пользователем (владелец)
+    created_at = models.DateTimeField(auto_now_add=True)  # Дата создания
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.owner.username})"
+
+    class Meta:
+        verbose_name = "Хранилище"
+        verbose_name_plural = "Хранилища"
+
+
 class Folder(models.Model):
     """Модель папки в облачном хранилище."""
     name = models.CharField(max_length=255)  # Название папки
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='folders')
     # Связь с пользователем (владелец)
+    storage = models.ForeignKey(Storage, on_delete=models.CASCADE, related_name='folders' , null=True, blank=True)
+    # Связь с хранилищем
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='subfolders')
     # Связь с родительской папкой (для вложенности)
     created_at = models.DateTimeField(auto_now_add=True)  # Дата создания

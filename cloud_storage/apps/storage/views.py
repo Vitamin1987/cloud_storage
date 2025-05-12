@@ -5,8 +5,63 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 
 from apps.location.views import update_user_location
-from apps.storage.models import Folder, File
-from apps.storage.serializers import FolderSerializer, FileSerializer
+from apps.storage.models import Folder, File, Storage
+from apps.storage.serializers import FolderSerializer, FileSerializer, StorageSerializer
+
+class StorageListCreateView(APIView):
+    """APIView для списка и создания хранилищ."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request) -> Response:
+        """Возвращает список хранилищ пользователя."""
+        storages = Storage.objects.filter(owner=request.user)
+        serializer = StorageSerializer(storages, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request) -> Response:
+        """Создаёт новое хранилище."""
+        serializer = StorageSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(owner=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class StorageDetailView(APIView):
+    """APIView для работы с конкретным хранилищем."""
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk: int) -> Storage:
+        """Получает хранилище по ID, проверяет владельца."""
+        try:
+            storage = Storage.objects.get(pk=pk)
+            if storage.owner != self.request.user:
+                raise PermissionError("Это не ваше хранилище.")
+            return storage
+        except Storage.DoesNotExist:
+            raise ValueError("Хранилище не найдено.")
+
+    def get(self, request, pk: int) -> Response:
+        """Возвращает данные хранилища."""
+        storage = self.get_object(pk)
+        serializer = StorageSerializer(storage)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk: int) -> Response:
+        """Обновляет хранилище."""
+        storage = self.get_object(pk)
+        serializer = StorageSerializer(storage, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk: int) -> Response:
+        """Удаляет хранилище."""
+        storage = self.get_object(pk)
+        storage.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 
 class FolderListCreateView(APIView):
